@@ -119,7 +119,7 @@ namespace WorkspaceManager.Core
 
                 var parentProcess = process.GetParentProcess();
 
-                if(parentProcess.ProcessName == "explorer")
+                if(parentProcess == null || parentProcess.ProcessName == "explorer")
                 {
                     processWindowsPairs.Add(new Tuple<Process, IntPtr, Process>(process, window, null));
                 }

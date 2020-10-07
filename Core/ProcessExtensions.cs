@@ -19,7 +19,15 @@ namespace WorkspaceManager.Core
             results.MoveNext();
             var queryObj = results.Current;
             var parentId = (uint)queryObj["ParentProcessId"];
-            var parent = Process.GetProcessById((int)parentId);
+            Process parent;
+            try
+            {
+                 parent = Process.GetProcessById((int)parentId);
+            }
+            catch (ArgumentException e) // Parent process does not exist with parentID
+            {
+                return null;
+            }
 
             return parent;
         }
@@ -29,7 +37,7 @@ namespace WorkspaceManager.Core
 
             var query = string.Format("SELECT ProcessId FROM Win32_Process WHERE ParentProcessId = {0}", process.Id);
             var search = new ManagementObjectSearcher("root\\CIMV2", query);
-            var results = search.Get().GetEnumerator();             
+            var results = search.Get().GetEnumerator();
 
             while (results.MoveNext())
             {
@@ -40,7 +48,7 @@ namespace WorkspaceManager.Core
                     var child = Process.GetProcessById((int)childId);
                     childs.Add(child);
                 }
-                catch(ArgumentException e) { }
+                catch (ArgumentException e) { }
             }
 
             return childs;
@@ -51,7 +59,7 @@ namespace WorkspaceManager.Core
             if (process.MainWindowHandle != IntPtr.Zero)
                 return;
 
-            for(int i = 0; i < retryAttempts; i++)
+            for (int i = 0; i < retryAttempts; i++)
             {
                 Thread.Sleep(waitBeetweenAttemptsMs);
 
